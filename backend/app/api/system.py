@@ -107,14 +107,24 @@ def restore_database(
 ):
     """从备份文件恢复数据库（仅管理员）"""
     try:
-        backup_path = os.path.join(settings.BACKUP_DIR, backup_file)
-        if not os.path.exists(backup_path):
+        # 安全过滤：只允许不含路径分隔符的纯文件名，防止路径注入
+        safe_filename = os.path.basename(backup_file)
+        if not safe_filename or safe_filename != backup_file:
+            return SuccessResponse(code=400, message="无效的备份文件名")
+
+        # 构造绝对路径并验证文件在允许目录内
+        backup_dir_abs = os.path.realpath(settings.BACKUP_DIR)
+        backup_path_abs = os.path.realpath(os.path.join(backup_dir_abs, safe_filename))
+        if not backup_path_abs.startswith(backup_dir_abs + os.sep):
+            return SuccessResponse(code=400, message="非法的备份文件路径")
+
+        if not os.path.exists(backup_path_abs):
             return SuccessResponse(code=404, message="备份文件不存在")
 
         db_url = settings.DATABASE_URL
         if db_url.startswith("sqlite:///"):
             target_path = db_url.replace("sqlite:///", "")
-            shutil.copy2(backup_path, target_path)
+            shutil.copy2(backup_path_abs, target_path)
             return SuccessResponse(message="数据库恢复成功")
 
         return SuccessResponse(code=400, message="恢复失败：数据库类型不支持")
