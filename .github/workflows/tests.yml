@@ -10,6 +10,8 @@ jobs:
   test:
     name: 完整测试套件
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - uses: actions/checkout@v4

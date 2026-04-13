@@ -10,6 +10,8 @@ jobs:
   backend-test:
     name: 后端测试
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +34,8 @@ jobs:
   frontend-lint:
     name: 前端代码检查
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       - uses: actions/checkout@v4
