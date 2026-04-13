@@ -1,0 +1,37 @@
+name: 自动化测试
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * *'
+
+jobs:
+  test:
+    name: 完整测试套件
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 设置Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: 安装后端依赖
+        run: pip install -r backend/requirements.txt
+      
+      - name: 运行后端测试
+        run: |
+          cd backend
+          pytest tests/ -v --tb=short --junit-xml=test-results.xml
+      
+      - name: 发布测试结果
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: backend/test-results.xml
