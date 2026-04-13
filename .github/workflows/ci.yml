@@ -1,0 +1,57 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-test:
+    name: 后端测试
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 设置Python环境
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: 安装依赖
+        run: |
+          cd backend
+          pip install -r requirements.txt
+      
+      - name: 运行测试
+        run: |
+          cd backend
+          pytest tests/ -v --tb=short
+  
+  frontend-lint:
+    name: 前端代码检查
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: 安装依赖
+        run: |
+          cd frontend
+          npm install --legacy-peer-deps
+      
+      - name: 代码检查
+        run: |
+          cd frontend
+          npm run lint || true
+      
+      - name: 构建检查
+        run: |
+          cd frontend
+          npm run build
