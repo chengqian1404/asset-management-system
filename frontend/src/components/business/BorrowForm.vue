@@ -60,6 +60,8 @@ async function handleSubmit() {
     await borrowApi.create(form)
     ElMessage.success('借用申请已提交')
     emit('success')
+  } catch (error) {
+    ElMessage.error(error?.response?.data?.detail || '提交失败，请重试')
   } finally {
     loading.value = false
   }
