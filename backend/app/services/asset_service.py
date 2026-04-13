@@ -125,8 +125,8 @@ class AssetService:
                 )
                 self.db.add(asset)
                 created += 1
-            except Exception as e:
-                errors.append(f"第{i}行：{str(e)}")
+            except Exception:
+                errors.append(f"第{i}行：数据格式错误，请检查后重试")
 
         self.db.commit()
         return {"created": created, "errors": errors}

@@ -3,7 +3,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-def test_login_success(client, admin_token):
+def test_login_success(client, admin_token):  # admin_token确保管理员账号已创建
     """测试登录成功"""
     response = client.post("/api/auth/login", json={
         "username": "testadmin",
@@ -15,7 +15,7 @@ def test_login_success(client, admin_token):
     assert "refresh_token" in data
 
 
-def test_login_failure(client, admin_token):
+def test_login_failure(client, admin_token):  # admin_token确保管理员账号已创建
     """测试登录失败"""
     response = client.post("/api/auth/login", json={
         "username": "testadmin",
