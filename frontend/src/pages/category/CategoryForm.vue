@@ -21,8 +21,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
+import { categoryApi } from '../../api/category'
 
 const route = useRoute()
 const router = useRouter()
@@ -35,6 +37,27 @@ const rules = { name: [{ required: true, message: '请输入分类名称', trigg
 
 async function handleSubmit() {
   await formRef.value.validate()
-  // 实现保存逻辑
+  loading.value = true
+  try {
+    if (isEdit.value) {
+      await categoryApi.update(route.params.id, form)
+      ElMessage.success('更新成功')
+    } else {
+      await categoryApi.create(form)
+      ElMessage.success('创建成功')
+    }
+    router.push('/categories')
+  } finally {
+    loading.value = false
+  }
 }
+
+onMounted(async () => {
+  if (isEdit.value) {
+    // 编辑模式：从分类列表中找到对应项并填充表单
+    const list = await categoryApi.list()
+    const item = list.find((c) => String(c.id) === String(route.params.id))
+    if (item) Object.assign(form, item)
+  }
+})
 </script>
