@@ -112,10 +112,14 @@ def restore_database(
         if not safe_filename or safe_filename != backup_file:
             return SuccessResponse(code=400, message="无效的备份文件名")
 
-        # 构造绝对路径并验证文件在允许目录内
+        # 构造绝对路径并验证文件在允许目录内（使用 commonpath 跨平台兼容）
         backup_dir_abs = os.path.realpath(settings.BACKUP_DIR)
         backup_path_abs = os.path.realpath(os.path.join(backup_dir_abs, safe_filename))
-        if not backup_path_abs.startswith(backup_dir_abs + os.sep):
+        try:
+            common = os.path.commonpath([backup_dir_abs, backup_path_abs])
+        except ValueError:
+            common = ""
+        if common != backup_dir_abs:
             return SuccessResponse(code=400, message="非法的备份文件路径")
 
         if not os.path.exists(backup_path_abs):

@@ -1,5 +1,6 @@
 # 应用配置模块
 import os
+import warnings
 from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
 
@@ -23,6 +24,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./asset_management.db"
 
     # JWT配置
+    # ⚠️ 重要：生产环境必须通过环境变量 SECRET_KEY 设置强随机密钥，不可使用默认值
     SECRET_KEY: str = "your-secret-key-change-in-production-must-be-long-enough"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30       # 访问令牌有效期30分钟
@@ -50,3 +52,13 @@ class Settings(BaseSettings):
 
 # 全局配置实例
 settings = Settings()
+
+# 生产环境安全检查：如果使用默认密钥则发出警告
+_DEFAULT_SECRET = "your-secret-key-change-in-production-must-be-long-enough"
+if settings.SECRET_KEY == _DEFAULT_SECRET:
+    warnings.warn(
+        "⚠️  SECRET_KEY 使用了默认值，生产环境必须通过环境变量设置强随机密钥！"
+        "  请在 .env 文件中设置 SECRET_KEY=<强随机字符串>",
+        RuntimeWarning,
+        stacklevel=2,
+    )
